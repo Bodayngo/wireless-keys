@@ -57,8 +57,11 @@ def passphrase_to_psk(passphrase: bytes, ssid: bytes) -> bytes:
         raise ValueError("The SSID must be an UTF-8 encoded byte string.")
     if not len(ssid) <= 32:
         raise ValueError("Invalid SSID length. It must be 32 characters or less")
-    psk = pbkdf2_hmac('sha1', passphrase, ssid, 4096, 256 // 8)
-    return psk
+    try:
+        psk = pbkdf2_hmac('sha1', passphrase, ssid, 4096, 256 // 8)
+        return psk
+    except Exception as e:
+        print(f"An unexpected error has occured: {e}")
 
 
 def get_pmkid(pmk: bytes, aa: bytes, spa: bytes, hash_func: Type[_hashlib.HASH]) -> tuple:
@@ -75,9 +78,12 @@ def get_pmkid(pmk: bytes, aa: bytes, spa: bytes, hash_func: Type[_hashlib.HASH])
     Returns:
     - bytes: PMKID calculated using HMAC with the specified parameters.
     """
-    PMKID_LABEL = bytes("PMK Name", "ascii")
-    pmkid = hmac.new(pmk, PMKID_LABEL + aa + spa, hash_func).digest()[:16]
-    return pmkid
+    try:
+        PMKID_LABEL = bytes("PMK Name", "ascii")
+        pmkid = hmac.new(pmk, PMKID_LABEL + aa + spa, hash_func).digest()[:16]
+        return pmkid
+    except Exception as e:
+        print(f"An unexpected error has occured: {e}")
 
 
 def getAB(anonce: bytes, snonce: bytes, aa: bytes, spa: bytes) -> tuple:
@@ -99,9 +105,12 @@ def getAB(anonce: bytes, snonce: bytes, aa: bytes, spa: bytes) -> tuple:
     The inputs (addresses and nonces) are concatenated in a specific order:
     - min(aa, spa) + max(aa, spa) + min(anonce, snonce) + max(anonce, snonce).
     """
-    A = b'Pairwise key expansion'
-    B = min(aa, spa) + max(aa, spa) + min(anonce, snonce) + max(anonce, snonce)
-    return A, B
+    try:
+        A = b'Pairwise key expansion'
+        B = min(aa, spa) + max(aa, spa) + min(anonce, snonce) + max(anonce, snonce)
+        return A, B
+    except Exception as e:
+        print(f"An unexpected error has occured: {e}")
 
 
 def prf(K: bytes, A: bytes, B: bytes, length: int) -> bytes:
@@ -121,13 +130,16 @@ def prf(K: bytes, A: bytes, B: bytes, length: int) -> bytes:
     The input values A and B are concatenated with specific padding and iteration,
     following the formula A + chr(0) + B + chr(i), where i is the iteration count.
     """
-    i = 0
-    R = b''
-    while i <= math.ceil((length * 8) / 160):
-        hmacsha1 = hmac.new(K, A + chr(0).encode() + B + chr(i).encode(), sha1)
-        R = R + hmacsha1.digest()
-        i += 1
-    return R[0:length]
+    try:
+        i = 0
+        R = b''
+        while i <= math.ceil((length * 8) / 160):
+            hmacsha1 = hmac.new(K, A + chr(0).encode() + B + chr(i).encode(), sha1)
+            R = R + hmacsha1.digest()
+            i += 1
+        return R[0:length]
+    except Exception as e:
+        print(f"An unexpected error has occured: {e}")
 
 
 def kdf(K: bytes, label: bytes, context: bytes, length: int, hash_func: Type[_hashlib.HASH]) -> bytes:
@@ -148,11 +160,14 @@ def kdf(K: bytes, label: bytes, context: bytes, length: int, hash_func: Type[_ha
     The HKDF approach involves iteratively applying HMAC with a specific concatenation of values,
     including the iteration count, label, context, and desired output length.
     """
-    i = 1
-    result = b''
-    hash_size = hash_func().digest_size * 8
-    while i <= math.ceil((length * 8) / hash_size):
-        hmacsha256 = hmac.new(K, struct.pack('<H', i) + label + context + struct.pack('<H', (length * 8)), hash_func)
-        result = result + hmacsha256.digest()
-        i += 1
-    return result[0:length]
+    try:
+        i = 1
+        result = b''
+        hash_size = hash_func().digest_size * 8
+        while i <= math.ceil((length * 8) / hash_size):
+            hmacsha256 = hmac.new(K, struct.pack('<H', i) + label + context + struct.pack('<H', (length * 8)), hash_func)
+            result = result + hmacsha256.digest()
+            i += 1
+        return result[0:length]
+    except Exception as e:
+        print(f"An unexpected error has occured: {e}")
