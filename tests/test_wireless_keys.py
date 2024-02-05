@@ -4,7 +4,7 @@ python3 -m unittest tests/test_wireless_keys.py
 """
 
 import unittest
-from wireless_keys import *
+from src.wireless_keys import *
 
 
 class TestWirelessKeysFunctions(unittest.TestCase):
