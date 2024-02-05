@@ -4,7 +4,7 @@ python3 -m unittest tests/test_wireless_keys.py
 """
 
 import unittest
-from src.wireless_keys import *
+from wireless_keys_old import *
 import hashlib
 
 
