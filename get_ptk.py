@@ -12,8 +12,7 @@ PTK_length = KCK_bits + KEK_bits + TK_bits
     384 bits (48 bytes)
 """
 
-from src.wireless_keys import *
-import hashlib
+from src.wireless_keys import passphrase_to_psk, pmkid_sha1, getAB, prf_sha1
 
 ssid = bytes('Bodayngo-Test', 'ascii')
 passphrase = bytes('password', 'utf-8')
@@ -27,12 +26,12 @@ def main():
     pmk = passphrase_to_psk(passphrase, ssid)
     print(f"PMK:   {pmk.hex()}")
 
-    pmkid = get_pmkid(pmk, bssid, client_mac, hashlib.sha1)
+    pmkid = pmkid_sha1(pmk, bssid, client_mac)
     print(f"PMKID: {pmkid.hex()}")
 
     A, B = getAB(anonce, snonce, bssid, client_mac)
 
-    ptk = prf(pmk, A, B, 48)
+    ptk = prf_sha1(pmk, A, B, 48)
     kck = ptk[0:16]
     kek = ptk[16:32]
     tk = ptk [32:48]

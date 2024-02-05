@@ -17,7 +17,7 @@ def get_dot1X_pmkid(msk, aa, spa):
         PMKID = Truncate-128(HMAC-SHA-1(PMK, “PMK Name” || AA || SPA))
     """
     pmk = msk[0:32]
-    pmkid = get_pmkid(pmk, aa, spa, hashlib.sha1)
+    pmkid = pmkid_sha1(pmk, aa, spa)
     return pmkid
 
 def get_pmkr0(msk, aa, spa, ssid, mdid, r0khid, s0khid):
@@ -33,12 +33,12 @@ def get_pmkr0(msk, aa, spa, ssid, mdid, r0khid, s0khid):
         Length = Q + 128
     """
     mpmk = msk[32:64]
-    pmkid = get_pmkid(mpmk, aa, spa, hashlib.sha256)
+    pmkid = pmkid_sha256(mpmk, aa, spa)
 
     ssid_len = chr(len(ssid)).encode()
     r0khid_len = chr(len(r0khid)).encode()
     
-    r0_key_data = kdf(mpmk, b'FT-R0', ssid_len + ssid + mdid + r0khid_len + r0khid + s0khid, 48, hashlib.sha256)
+    r0_key_data = kdf_sha256(mpmk, b'FT-R0', ssid_len + ssid + mdid + r0khid_len + r0khid + s0khid, 48)
     pmk_r0 = r0_key_data[0:32]
     pmk_r0_name_salt = r0_key_data[32:48]
     pmk_r0_name = hashlib.sha256(b'FT-R0N' + pmk_r0_name_salt).digest()[0:16]
@@ -52,7 +52,7 @@ def get_pmkr1(pmk_r0, pmk_r0_name, r1khid, s1khid):
         PMK-R1 = KDF-Hash-Length(PMK-R0, “FT-R1”, R1KH-ID || S1KH-ID)
         PMKR1Name = Truncate-128(Hash(“FT-R1N” || PMKR0Name || R1KH-ID || S1KH-ID))
     """
-    pmk_r1 = kdf(pmk_r0, b'FT-R1', r1khid + s1khid, 32, hashlib.sha256)
+    pmk_r1 = kdf_sha256(pmk_r0, b'FT-R1', r1khid + s1khid, 32)
     pmk_r1_name = hashlib.sha256(b'FT-R1N' + pmk_r0_name + r1khid + s1khid).digest()[0:16]
 
     return pmk_r1, pmk_r1_name
@@ -63,7 +63,7 @@ def get_ptk(pmk_r1, pmk_r1_name, snonce, anonce, bssid, sta_addr):
         PTK = KDF-Hash-Length(PMK-R1, “FT-PTK”, SNonce || ANonce || BSSID || STA-ADDR)
         PTKName = Truncate-128(SHA-256(PMKR1Name || “FT-PTKN” || SNonce || ANonce || BSSID || STA-ADDR))
     """
-    ptk = kdf(pmk_r1, b'FT-PTK', snonce + anonce + bssid + sta_addr, 48, hashlib.sha256)
+    ptk = kdf_sha256(pmk_r1, b'FT-PTK', snonce + anonce + bssid + sta_addr, 48)
     ptk_name = hashlib.sha256(pmk_r1_name + b'FT-PTKN' + snonce + anonce + bssid + sta_addr).digest()[0:16]
 
     return ptk, ptk_name
