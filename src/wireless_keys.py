@@ -20,6 +20,7 @@ def passphrase_to_psk(passphrase: bytes, ssid: bytes) -> bytes:
         return psk
     except Exception as e:
         print(f"An unexpected error has occured: {e}")
+        raise
 
 
 def _pmkid(pmk: bytes, aa: bytes, spa: bytes, hash_func) -> bytes:
@@ -36,8 +37,10 @@ def _pmkid(pmk: bytes, aa: bytes, spa: bytes, hash_func) -> bytes:
         bytes: The computed PMKID.
 
     Notes:
-        Do not import/use directly. Use pmkid_sha1, pmkid_sha256, 
-        or pmkid_sha384 instead.
+        Do not import/use directly. Use the following functions instead:
+            - pmkid_sha1() 
+            - pmkid_sha256()
+            - pmkid_sha384()
     """
     try:
         PMKID_LABEL = bytes("PMK Name", "ascii")
@@ -45,6 +48,7 @@ def _pmkid(pmk: bytes, aa: bytes, spa: bytes, hash_func) -> bytes:
         return pmkid
     except Exception as e:
         print(f"An unexpected error has occurred: {e}")
+        raise
 
 
 def pmkid_sha1(pmk: bytes, aa: bytes, spa: bytes) -> bytes:
@@ -111,6 +115,7 @@ def getAB(anonce: bytes, snonce: bytes, aa: bytes, spa: bytes) -> tuple:
         return A, B
     except Exception as e:
         print(f"An unexpected error has occured: {e}")
+        raise
 
 
 def prf_sha1(K: bytes, A: bytes, B: bytes, length: int) -> bytes:
@@ -136,6 +141,7 @@ def prf_sha1(K: bytes, A: bytes, B: bytes, length: int) -> bytes:
         return R[0:length]
     except Exception as e:
         print(f"An unexpected error has occured: {e}")
+        raise
 
 
 def _kdf(K: bytes, label: bytes, context: bytes, length: int, hash_func) -> bytes:
@@ -151,6 +157,11 @@ def _kdf(K: bytes, label: bytes, context: bytes, length: int, hash_func) -> byte
 
     Returns:
         bytes: The computed KDF output.
+
+    Notes:
+        Do not import/use directly. Use the following functions instead:
+            - kdf_sha256()
+            - kdf_sha384()
     """
     try:
         i = 1
@@ -163,6 +174,7 @@ def _kdf(K: bytes, label: bytes, context: bytes, length: int, hash_func) -> byte
         return result[0:length]
     except Exception as e:
         print(f"An unexpected error has occured: {e}")
+        raise
 
 
 def kdf_sha256(K: bytes, label: bytes, context: bytes, length: int) -> bytes:

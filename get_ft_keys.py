@@ -90,6 +90,10 @@ def main():
 
     # PTK
     ptk, ptk_name = get_ptk(pmk_r1, pmk_r1_name, snonce, anonce, ap_mac, client_mac)
+    """
+    TK bits = Table 12-8—Cipher suite key lengths
+    KEK and KCK bits = Table 12-11—Integrity and key wrap algorithms
+    """
     kck = ptk[0:16]
     kek = ptk[16:32]
     tk = ptk[32:48]

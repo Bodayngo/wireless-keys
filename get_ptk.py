@@ -31,6 +31,23 @@ def main():
 
     A, B = getAB(anonce, snonce, bssid, client_mac)
 
+    """
+    The PTK shall be derived from the PMK by
+        PTK = PRF-Length(PMK, “Pairwise key expansion”, Min(AA,SPA) || Max(AA,SPA) ||
+            Min(ANonce,SNonce) || Max(ANonce,SNonce))
+    where Length = KCK_bits + KEK_bits + TK_bits + KDK_bits. The values of KCK_bits and
+    KEK_bits are AKMP dependent and are listed in Table 12-11. The value of TK_bits is cipher suite
+    dependent and is defined in Table 12-8. If a KDK is derived, the value of KDK_bits is equal to the
+    value of PMK_bits; otherwise the value of KDK_bits shall be 0.
+
+    A KDK shall be derived if any of the following are true:
+    —WUR frame protection is negotiated
+    —dot11SecureLTFImplemented is true and the peer STA has advertised secure
+        HE-LTF support capability in its RSNXE (see 9.4.2.240)
+
+    TK bits = Table 12-8—Cipher suite key lengths
+    KEK and KCK bits = Table 12-11—Integrity and key wrap algorithms
+    """
     ptk = prf_sha1(pmk, A, B, 48)
     kck = ptk[0:16]
     kek = ptk[16:32]
