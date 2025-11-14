@@ -16,7 +16,7 @@ from hashlib import sha1
 from src.wireless_keys import passphrase_to_psk, pmkid_sha1, getAB, prf_sha1
 
 ssid = bytes('Josh_Test', 'ascii')
-passphrase = bytes('@cce$$4Tornado', 'utf-8')
+passphrase = bytes('SuperSecretPassword', 'utf-8')
 client_mac = bytes.fromhex('8abf72d72d17')
 bssid = bytes.fromhex('8e468d31adad')
 anonce = bytes.fromhex('575e45d3fe2e8953be82f4245392061e9a24b896338937e593d68b38ac672617')
